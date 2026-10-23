@@ -100,11 +100,31 @@ footer{padding:28px 0 44px;color:var(--mute);font-size:.875rem}
 footer a{color:inherit;font-weight:700}
 
 @media (max-width:640px){
-  .lessons > li{grid-template-columns:minmax(0,1fr)}
-  .go{justify-self:start}
+  .lessons > li{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"cls go" "what what";gap:.35rem .75rem;padding:1rem 16px}
+  .lessons > li > .cls{grid-area:cls;font-size:1.3rem}
+  .lessons > li > .what{grid-area:what}
+  .lessons > li > .go{grid-area:go;min-height:42px;padding:0 1rem;font-size:.875rem}
+  .lessons > li > .way{grid-column:1 / -1}
+  .what b{font-size:1.0625rem;line-height:1.45}
+  .what span{font-size:.9375rem}
+  .chips{flex-wrap:nowrap;overflow-x:auto;margin-inline:-16px;padding-inline:16px;scrollbar-width:none}
+  .chips::-webkit-scrollbar{display:none}
+  .chip{flex:none}
+  .lessons{border-radius:20px;margin-inline:-4px}
+  .steps li{font-size:1rem}
+  .top p.lead{font-size:.9375rem}
+  .jump .btn{width:100%}
 }
 
 /* 안내도 사진 + 길 */
+.view-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 6px}
+.view-head h3{margin:0}
+.mini-t{min-height:36px;padding:0 .9rem;border-radius:999px;border:1px solid var(--line);background:var(--card);font:700 .875rem var(--font);color:var(--ink);cursor:pointer}
+.mini-t:active{background:var(--sun)}
+.frame{border-radius:14px;border:1px solid var(--line);background:#fff;overflow:hidden}
+.frame svg{display:block;width:100%;height:auto}
+.ftag rect{fill:var(--ink);stroke:#fff;stroke-width:3}
+.ftag text{fill:#fff;font-family:var(--font);font-weight:900;font-size:20px;text-anchor:middle;dominant-baseline:central}
 .view h3{margin:0 0 6px;font-size:.9375rem;font-weight:700;color:var(--mute)}
 .scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:14px;border:1px solid var(--line);background:#fff}
 .pic{position:relative;min-width:760px}
@@ -203,7 +223,7 @@ footer a{color:inherit;font-weight:700}
     </div>
   </section>
 </main>
-<footer class="wrap"><a href="./">보고회 안내 페이지로</a></footer>
+<footer class="wrap"><a href="https://zenith5021-hue.github.io/showcase/">보고회 안내 페이지로</a></footer>
 
 <script>
 (function(){
@@ -364,30 +384,71 @@ footer a{color:inherit;font-weight:700}
     var sx = stair === 'left' ? P_LEFT : P_MID;
     return 'M '+P_LIB+' 635 V '+P_Y[1]+' H '+sx+' V '+P_Y[f]+' H '+tx+' V '+P_TOP[f];
   }
+  /* 층 줄 위치(안내도 사진 기준): 좁은 화면에서 잘라 보일 때 층 이름을 붙이려고 씀 */
+  var ROWS = { main:[[3,224,322],[2,377,475],[1,537,635]], annex:[[2,257,355],[1,473,572]] };
+  var NARROW = 700;
   function picView(key, d, box, lab, above, endLab){
     var im = IMG[key], wrap = H('div', 'view');
-    wrap.appendChild(H('h3', '', im.title));
-    var sc = H('div', 'scroll'), pl = H('div', 'pic' + (key === 'out' ? ' wide' : ''));
-    var img = new Image(); img.src = im.src; img.alt = im.title; img.width = im.w; img.height = im.h; pl.appendChild(img);
-    var svg = S('svg', { viewBox:'0 0 '+im.w+' '+im.h, 'aria-hidden':'true' }, pl);
+    var head = H('div', 'view-head'); head.appendChild(H('h3', '', im.title));
+    var tg = H('button', 'mini-t', '전체 보기'); tg.type = 'button'; head.appendChild(tg);
+    wrap.appendChild(head);
+    var frame = H('div', 'frame');
+    var svg = S('svg', { role:'img', 'aria-label':im.title + ' 위에 그린 가는 길' }, frame);
+    S('image', { href:im.src, x:0, y:0, width:im.w, height:im.h }, svg);
+    var tags = S('g', {}, svg);
     var sw = key === 'out' ? 16 : 12;
     S('path', { d:d, class:'p-under', 'stroke-width':sw+6 }, svg);
-    var line = S('path', { d:d, class:'p-line p-draw', 'stroke-width':sw }, svg);
+    var line = S('path', { d:d, class:'p-line', 'stroke-width':sw }, svg);
     var ants = S('path', { d:d, class:'p-ants', 'stroke-width':sw-4 }, svg);
     var m = d.match(/-?\d+(\.\d+)?/g).map(Number), sx = m[0], sy = m[1];
     var st = S('g', { class:'start' }, svg); S('circle', { cx:sx, cy:sy, r:sw+4, 'stroke-width':4 }, st);
     function pill(x, y, t){ var g = S('g', { class:'lbl' }, svg), w = t.length * 28 + 24; S('rect', { x:x - w/2, y:y, width:w, height:44, rx:22 }, g); S('text', { x:x, y:y + 31, 'text-anchor':'middle', 'font-size':26 }, g).textContent = t; }
     if (lab) pill(sx, above ? sy - 74 : sy + 26, lab);
-    if (endLab) pill(m[m.length-2], m[m.length-1] - 74, endLab);
+    if (endLab) pill(ex, ey - 74, endLab);
     if (box) S('rect', { x:box[0]+3, y:box[1]+3, width:box[2]-box[0]-6, height:box[3]-box[1]-6, rx:6, class:'box', 'stroke-width':8 }, svg);
-    sc.appendChild(pl); wrap.appendChild(sc);
-    if (key !== 'out') wrap.appendChild(H('p', 'hint', '안내도를 옆으로 밀어 볼 수 있습니다.'));
+    wrap.appendChild(frame);
+
+    /* 길이 지나는 부분만 잘라 보기 */
+    var xs = [], ys = [], cx = 0, cy = 0, tk = d.match(/[MLHV]|-?\d+(\.\d+)?/g), cmd = 'M';
+    for (var i = 0; i < tk.length; i++){
+      var t = tk[i];
+      if (/[MLHV]/.test(t)){ cmd = t; continue; }
+      if (cmd === 'H') cx = +t; else if (cmd === 'V') cy = +t; else { cx = +t; cy = +tk[++i]; }
+      xs.push(cx); ys.push(cy);
+    }
+    var ex = xs[xs.length-1], ey = ys[ys.length-1];
+    if (box){ xs.push(box[0], box[2]); ys.push(box[1], box[3]); }
+    ys.push(lab ? (above ? sy - 80 : sy + 76) : sy);
+    var padX = key === 'out' ? 110 : 70, padY = key === 'out' ? 70 : 24;
+    var x0 = Math.max(0, Math.min.apply(null, xs) - padX), x1 = Math.min(im.w, Math.max.apply(null, xs) + padX);
+    var y0 = Math.max(0, Math.min.apply(null, ys) - padY), y1 = Math.min(im.h, Math.max.apply(null, ys) + padY);
+    if (key !== 'out'){ (ROWS[key] || []).forEach(function(r){ if (r[2] > y0 && r[1] < y1){ y0 = Math.min(y0, r[1] - 16); y1 = Math.max(y1, r[2] + 30); } }); y0 = Math.max(0, y0); y1 = Math.min(im.h, y1); }
+    if (x1 - x0 < 520){ var c = (x0 + x1) / 2; x0 = Math.max(0, c - 260); x1 = Math.min(im.w, x0 + 520); }
+    var crop = [x0, y0, x1 - x0, y1 - y0], full = [0, 0, im.w, im.h];
+    function floorTags(on){
+      tags.innerHTML = '';
+      if (!on || key === 'out') return;
+      (ROWS[key] || []).forEach(function(r){
+        var cy = r[2] + 13; if (cy < crop[1] || cy > crop[1] + crop[3]) return;
+        var g = S('g', { class:'ftag' }, tags); S('rect', { x:crop[0] + 8, y:cy - 16, width:66, height:32, rx:16 }, g);
+        S('text', { x:crop[0] + 41, y:cy + 1 }, g).textContent = r[0] + '층';
+      });
+    }
+    var zoomed = false;
+    function setView(z){
+      zoomed = z; var v = z ? crop : full;
+      svg.setAttribute('viewBox', v.join(' ')); svg.style.aspectRatio = v[2] + ' / ' + v[3];
+      floorTags(z); tg.textContent = z ? '전체 보기' : '가까이 보기';
+    }
+    tg.addEventListener('click', function(){ setView(!zoomed); });
     wrap._go = function(){
+      setView(innerWidth < NARROW);
+      tg.hidden = innerWidth >= NARROW;
       var len = line.getTotalLength();
       line.classList.remove('p-draw'); ants.classList.remove('on'); void line.getBBox();
       line.style.setProperty('--len', len); line.style.strokeDasharray = len; line.style.strokeDashoffset = len;
-      line.classList.add('p-draw'); setTimeout(function(){ ants.classList.add('on'); }, 1600);
-      if (key !== 'out'){ var fx = box ? ((box[0] + box[2]) / 2 + sx) / 2 / im.w : sx / im.w; sc.scrollLeft = Math.max(0, fx * sc.scrollWidth - sc.clientWidth / 2); }
+      requestAnimationFrame(function(){ line.classList.add('p-draw'); });
+      setTimeout(function(){ ants.classList.add('on'); }, 1700);
     };
     return wrap;
   }
