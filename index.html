@@ -122,7 +122,10 @@ footer a{color:inherit;font-weight:700}
 .mini-t{min-height:36px;padding:0 .9rem;border-radius:999px;border:1px solid var(--line);background:var(--card);font:700 .875rem var(--font);color:var(--ink);cursor:pointer}
 .mini-t:active{background:var(--sun)}
 .frame{border-radius:14px;border:1px solid var(--line);background:#fff;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
-.frame svg{display:block;width:100%;max-width:none;height:auto}
+.clip{position:relative;overflow:hidden;width:100%}
+.stage{position:relative;width:100%;transform-origin:0 0}
+.stage img{display:block;width:100%;height:100%;max-width:none;-webkit-user-select:none;user-select:none;pointer-events:none}
+.stage svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
 .swipe{margin:.35rem 0 0;font-size:.8125rem;color:var(--mute)}
 .ftag rect{fill:var(--ink);stroke:#fff;stroke-width:3}
 .ftag text{fill:#fff;font-family:var(--font);font-weight:900;font-size:20px;text-anchor:middle;dominant-baseline:central}
@@ -393,9 +396,12 @@ footer a{color:inherit;font-weight:700}
     var head = H('div', 'view-head'); head.appendChild(H('h3', '', im.title));
     var tg = H('button', 'mini-t', '전체 보기'); tg.type = 'button'; head.appendChild(tg);
     wrap.appendChild(head);
-    var frame = H('div', 'frame');
-    var svg = S('svg', { role:'img', 'aria-label':im.title + ' 위에 그린 가는 길' }, frame);
-    S('image', { href:im.src, x:0, y:0, width:im.w, height:im.h }, svg);
+    /* frame(옆으로 미는 틀) > clip(위아래 자르기) > stage(사진+길, 실제 크기 px로 지정) */
+    var frame = H('div', 'frame'), clip = H('div', 'clip'), stage = H('div', 'stage');
+    var img = new Image(); img.src = im.src; img.alt = im.title; img.width = im.w; img.height = im.h; img.draggable = false;
+    stage.appendChild(img);
+    var svg = S('svg', { viewBox:'0 0 ' + im.w + ' ' + im.h, 'aria-hidden':'true' }, stage);
+    clip.appendChild(stage); frame.appendChild(clip);
     var tags = S('g', {}, svg);
     var sw = key === 'out' ? 16 : 12;
     S('path', { d:d, class:'p-under', 'stroke-width':sw+6 }, svg);
@@ -439,19 +445,24 @@ footer a{color:inherit;font-weight:700}
     var swipe = H('p', 'swipe', '안내도를 옆으로 밀면 나머지 교실도 볼 수 있습니다.'); swipe.hidden = true; wrap.appendChild(swipe);
     function setView(z){
       zoomed = z;
-      if (z && key !== 'out'){
+      var cw = frame.clientWidth || (innerWidth - 40);
+      if (z){
         /* 가까이 보기: 길 부분이 화면 폭에 차도록 키우고, 나머지는 옆으로 밀어서 봄 */
-        var v = [0, crop[1], im.w, crop[3]], k = im.w / crop[2];
-        svg.setAttribute('viewBox', v.join(' ')); svg.style.aspectRatio = v[2] + ' / ' + v[3]; svg.style.width = (k * 100) + '%';
-        requestAnimationFrame(function(){ frame.scrollLeft = crop[0] / im.w * svg.clientWidth; });
-        swipe.hidden = false;
+        var sc = cw / crop[2], W = Math.round(im.w * sc);
+        stage.style.width = W + 'px'; stage.style.height = Math.round(im.h * sc) + 'px';
+        clip.style.width = W + 'px'; clip.style.height = Math.round(crop[3] * sc) + 'px';
+        stage.style.transform = 'translateY(' + (-crop[1] * sc) + 'px)';
+        frame.scrollLeft = Math.round(crop[0] * sc);
+        swipe.hidden = key === 'out';
       } else {
-        var v2 = z ? crop : full;
-        svg.setAttribute('viewBox', v2.join(' ')); svg.style.aspectRatio = v2[2] + ' / ' + v2[3]; svg.style.width = '100%';
+        stage.style.width = '100%'; stage.style.height = 'auto'; stage.style.transform = 'none';
+        clip.style.width = '100%'; clip.style.height = 'auto';
+        frame.scrollLeft = 0;
         swipe.hidden = true;
       }
       floorTags(z); tg.textContent = z ? '전체 보기' : '가까이 보기';
     }
+    addEventListener('resize', function(){ if (zoomed) setView(true); });
     tg.addEventListener('click', function(){ setView(!zoomed); });
     wrap._go = function(){
       setView(innerWidth < NARROW);
