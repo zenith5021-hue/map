@@ -1,0 +1,475 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>공개수업 교실 찾아가기</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Noto+Sans+KR:wght@400;500;700;900&display=swap">
+<style>
+[hidden]{display:none!important}
+:root{
+  color-scheme: light;
+  --sky:#f3f2ed;--card:#ffffff;--ink:#111418;--mute:#5b6068;--blue:#1560f0;--wash:#e8e6de;--sun:#ffd22e;--line:#d8d5cb;
+  --font:"Bricolage Grotesque","Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --gutter:clamp(16px,4vw,40px);--wide:1120px;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--sky);color:var(--ink);font-family:var(--font);font-size:1rem;line-height:1.7;word-break:keep-all}
+:focus-visible{outline:3px solid var(--blue);outline-offset:3px}
+.wrap{max-width:var(--wide);margin-inline:auto;padding-inline:var(--gutter)}
+
+/* 머리 */
+.top{padding-block:clamp(28px,5vw,56px) 0}
+.badge{display:inline-block;margin:0 0 14px;font-weight:700;font-size:.9375rem;color:var(--blue);background:var(--wash);padding:.35rem .9rem;border-radius:999px}
+h1{margin:0;font-weight:900;font-size:clamp(2rem,6vw,3.6rem);line-height:1.15;letter-spacing:-.04em}
+.top p.lead{margin:.6rem 0 0;color:var(--mute);max-width:60ch}
+.jump{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:.7rem 1.5rem;border-radius:999px;font-weight:700;font-size:1.0625rem;text-decoration:none;border:1px solid transparent;transition:background-color .15s ease,border-color .15s ease,transform .15s ease}
+.btn-go{background:var(--ink);color:var(--card)}
+.btn-line{background:var(--card);border-color:var(--line);color:var(--ink)}
+.btn:hover{background:var(--sun);border-color:var(--ink);color:var(--ink)}
+.btn:active{transform:scale(.96);background:var(--sun);color:var(--ink)}
+
+/* 구역 */
+.sec{padding-block:clamp(40px,6vw,72px) 0;scroll-margin-top:12px}
+h2{margin:0 0 .4rem;font-weight:800;font-size:clamp(1.8rem,4.6vw,3rem);line-height:1.12;letter-spacing:-.045em}
+.lead{margin:0 0 clamp(18px,3vw,28px);color:var(--mute)}
+
+/* 학년 고르기, 범례 */
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.chip{min-height:44px;padding:0 1.1rem;border-radius:999px;border:1px solid var(--line);background:var(--card);font:700 1rem var(--font);color:var(--ink);cursor:pointer;transition:background-color .15s ease,border-color .15s ease}
+.chip:hover{background:var(--sun);border-color:var(--ink)}
+.chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--card)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 20px;list-style:none;margin:-6px 0 16px;padding:0;font-size:.9375rem;color:var(--mute)}
+.legend li{display:flex;align-items:center;gap:6px}
+.star{color:#e0a100;font-size:1.05em;margin-left:.25em}
+.legend .star{margin:0}
+.badge-co{display:inline-block;padding:.05rem .55rem;border-radius:999px;background:var(--wash);color:var(--ink);font-size:.8125rem;font-weight:700;vertical-align:.12em}
+
+/* 수업 목록 */
+.lessons{list-style:none;margin:0;padding:0;background:var(--card);border-radius:24px;overflow:hidden}
+.lessons > li{display:grid;grid-template-columns:8rem minmax(0,1fr) auto;gap:.5rem 1.5rem;align-items:center;padding:1.1rem clamp(18px,3vw,32px)}
+.lessons > li + li{border-top:1px solid var(--line)}
+.lessons > li.open{background:#fbfaf6}
+.cls{font-weight:900;font-size:clamp(1.25rem,2.4vw,1.5rem);color:var(--blue);font-variant-numeric:tabular-nums;white-space:nowrap;letter-spacing:-.03em}
+.what{min-width:0}
+.what b{display:block;font-size:clamp(1.0625rem,2vw,1.2rem)}
+.what span{color:var(--mute)}
+.go{display:inline-flex;align-items:center;gap:.4rem;min-height:46px;padding:0 1.2rem;border-radius:999px;border:1px solid var(--ink);background:var(--ink);color:var(--card);font:700 .9375rem var(--font);cursor:pointer;white-space:nowrap;transition:background-color .15s ease,color .15s ease}
+.go:hover{background:var(--sun);color:var(--ink)}
+.go:active{transform:scale(.96)}
+.go[aria-expanded="true"]{background:var(--sun);color:var(--ink)}
+.none{display:block;color:var(--mute)}
+
+/* 펼친 길 안내 */
+.way{grid-column:1 / -1;padding-top:.5rem}
+.boards{display:grid;grid-template-columns:minmax(0,1fr);gap:16px}
+.view{min-width:0}
+.board{background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden;position:relative}
+.board-cap{display:flex;align-items:center;gap:8px;padding:.6rem 1rem;font-weight:700;font-size:.9375rem;border-bottom:1px solid var(--line)}
+.board-cap i{font-style:normal;display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--ink);color:var(--card);font-size:.8125rem}
+.board svg{display:block;width:100%;height:auto;aspect-ratio:4/3}
+@media (min-width:760px){.board svg{aspect-ratio:21/8}}
+.replay{position:absolute;right:10px;bottom:10px;min-height:38px;padding:0 .95rem;border-radius:999px;border:1px solid var(--line);background:var(--card);font:700 .875rem var(--font);cursor:pointer}
+.replay:hover{background:var(--sun);border-color:var(--ink)}
+.steps{list-style:none;margin:14px 0 4px;padding:0;display:grid;gap:8px;counter-reset:s}
+.steps li{display:grid;grid-template-columns:32px 1fr;gap:12px;align-items:start;font-size:1.0625rem}
+.steps li::before{counter-increment:s;content:counter(s);display:grid;place-items:center;width:32px;height:32px;border-radius:50%;background:var(--sun);border:2px solid var(--ink);font-weight:900;font-size:.9375rem}
+.steps li span{padding-top:2px}
+
+/* 보고회장으로: 크게 */
+.after{margin-top:clamp(48px,7vw,88px);background:var(--ink);color:var(--card);padding-block:clamp(40px,6vw,72px)}
+.after .badge{background:var(--sun);color:var(--ink)}
+.after h2{font-size:clamp(2.1rem,6vw,4rem)}
+.after .lead{color:#c9ccd1}
+.after-grid{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:clamp(18px,3vw,32px);align-items:start}
+.sat{position:relative;border-radius:24px;overflow:hidden;background:#222}
+.sat svg{display:block;width:100%;height:auto}
+.sat .replay{background:var(--card);color:var(--ink);top:10px;bottom:auto}
+.times{list-style:none;margin:0 0 18px;padding:0;display:grid;gap:8px}
+.times li{display:flex;gap:14px;align-items:baseline;padding:.8rem 1rem;border-radius:16px;background:#1d2127}
+.times time{font-weight:900;font-size:1.35rem;color:var(--sun);font-variant-numeric:tabular-nums;white-space:nowrap}
+.after .steps li{font-size:1.125rem}
+.after .steps li::before{border-color:var(--sun)}
+.after .steps li::before{color:var(--ink)}
+.after .note{margin:14px 0 0;color:#9aa0a8;font-size:.9375rem}
+@media (max-width:860px){.after-grid{grid-template-columns:minmax(0,1fr)}}
+
+footer{padding:28px 0 44px;color:var(--mute);font-size:.875rem}
+.after + footer{background:var(--ink);color:#9aa0a8;padding-top:0}
+footer a{color:inherit;font-weight:700}
+
+@media (max-width:640px){
+  .lessons > li{grid-template-columns:minmax(0,1fr)}
+  .go{justify-self:start}
+}
+
+/* 안내도 사진 + 길 */
+.view h3{margin:0 0 6px;font-size:.9375rem;font-weight:700;color:var(--mute)}
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:14px;border:1px solid var(--line);background:#fff}
+.pic{position:relative;min-width:760px}
+.pic.wide{min-width:0}
+.pic img{display:block;width:100%;height:auto}
+.pic svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.hint{margin:.4rem 0 0;font-size:.8125rem;color:var(--mute)}
+@media (min-width:800px){.hint{display:none}}
+.p-under{fill:none;stroke:var(--ink);stroke-linecap:round;stroke-linejoin:round}
+.p-line{fill:none;stroke:var(--sun);stroke-linecap:round;stroke-linejoin:round}
+.p-draw{animation:draw 1.6s ease-out forwards}
+.p-ants{fill:none;stroke:var(--ink);stroke-linecap:round;stroke-dasharray:2 22;animation:ants 1s linear infinite;opacity:0}
+.p-ants.on{opacity:1}
+@keyframes draw{from{stroke-dashoffset:var(--len)}to{stroke-dashoffset:0}}
+@keyframes ants{to{stroke-dashoffset:-24}}
+.box{fill:none;stroke:#ff3b30;animation:blink 1s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.15}}
+.start circle{fill:var(--blue);stroke:#fff}
+.lbl rect{fill:var(--ink)}
+.lbl text{font-family:var(--font);font-weight:900;fill:#fff}
+@media (prefers-reduced-motion:reduce){.p-draw,.p-ants,.box{animation:none}.p-draw{stroke-dashoffset:0!important}}
+
+/* 지도 그림 */
+.rm rect{stroke:var(--line);stroke-width:2}
+.rm text{font-family:var(--font);font-weight:700;fill:var(--ink);text-anchor:middle;dominant-baseline:central}
+.rm.cls rect{fill:#fff}
+.rm.cls text,.rm.goal text{font-weight:900}
+.rm.etc rect{fill:#f3f2ed}
+.rm.etc text{fill:var(--mute)}
+.rm.wc rect{fill:#eceae3}
+.rm.wc text{fill:#9a9da3}
+.rm.door rect{fill:#dfe8fb}
+.rm.door text{fill:var(--blue)}
+.rm.lib rect{fill:var(--blue);stroke:var(--blue)}
+.rm.lib text{fill:#fff;font-weight:900}
+.rm.goal rect{fill:var(--ink);stroke:var(--sun);stroke-width:7}
+.rm.goal text{fill:var(--sun)}
+.hallway{fill:var(--wash)}
+.flr rect{fill:var(--ink)}
+.flr text{fill:#fff;font-family:var(--font);font-weight:900;font-size:28px;text-anchor:middle;dominant-baseline:central}
+.flr.mini rect{stroke:#fff;stroke-width:3}
+.tape-under{fill:none;stroke:var(--ink);stroke-linecap:round;stroke-linejoin:round}
+.tape{fill:none;stroke:var(--sun);stroke-linecap:round;stroke-linejoin:round}
+.walker{fill:var(--blue);stroke:#fff;stroke-width:5}
+.pin circle{fill:var(--sun);stroke:var(--ink);stroke-width:4}
+.pin text{font-family:var(--font);font-weight:900;font-size:24px;text-anchor:middle;dominant-baseline:central;fill:var(--ink)}
+.ring{fill:none;stroke:var(--sun);stroke-width:6;transform-box:fill-box;transform-origin:center;animation:ring 1.6s ease-out infinite}
+@keyframes ring{from{opacity:.9;transform:scale(1)}to{opacity:0;transform:scale(1.3)}}
+.tagp rect{fill:var(--ink)}
+.tagp text{fill:#fff;font-family:var(--font);font-weight:700;text-anchor:middle;dominant-baseline:central}
+.tagp.big rect{fill:var(--sun);stroke:var(--ink);stroke-width:4}
+.tagp.big text{fill:var(--ink);font-weight:900}
+.yard{fill:#4caf6e}.yard-in{fill:none;stroke:#fff;stroke-width:4;opacity:.8}.track{fill:#d06a55}
+.bld rect{fill:#fff;stroke:var(--ink);stroke-width:4}
+.bld text{font-family:var(--font);font-weight:900;font-size:38px;fill:var(--ink);text-anchor:middle;dominant-baseline:central}
+@media (prefers-reduced-motion:reduce){.ring{animation:none}}
+</style>
+</head>
+<body>
+<header class="top wrap">
+  <p class="badge">본관 1층 도서관에서 출발</p>
+  <h1>공개수업 교실 찾아가기</h1>
+  <p class="lead">참관하실 학급의 '찾아가는 길'을 누르면 도서관에서 교실까지 가는 길이 그려집니다. 공개수업이 끝나면 버드나무 예술창고로 오시면 됩니다.</p>
+  <div class="jump"><a class="btn btn-line" href="#after">보고회장(버드나무 예술창고) 가는 길</a></div>
+</header>
+
+<main>
+  <section class="sec wrap" id="lessons" aria-labelledby="lessons-h">
+    <h2 id="lessons-h">공개수업 13:20~14:00</h2>
+    <p class="lead">학년을 고르면 그 학년 수업만 보입니다.</p>
+    <ul class="legend"><li><span class="star">★</span>통합학급</li><li><span class="badge-co">협력수업</span>특수교사와 일반교사가 함께 하는 수업</li></ul>
+    <div class="chips" id="chips" role="group" aria-label="학년 고르기"></div>
+    <ul class="lessons" id="list"></ul>
+  </section>
+
+  <section class="after" id="after" aria-labelledby="after-h">
+    <div class="wrap">
+      <p class="badge">공개수업이 끝나면</p>
+      <h2 id="after-h">버드나무 예술창고로 오세요</h2>
+      <p class="lead">후문으로 나와 길을 건너면 공영주차장 바로 옆입니다.</p>
+      <div class="after-grid">
+        <div class="sat" id="sat"></div>
+        <div>
+          <ul class="times">
+            <li><time>14:00~14:20</time><span>이동 및 휴식</span></li>
+            <li><time>14:20~15:20</time><span>연구학교 운영 보고회</span></li>
+          </ul>
+          <ol class="steps">
+            <li><span>수업이 끝나면 처음 들어오신 <b>후문</b> 쪽으로 나옵니다.</span></li>
+            <li><span>후문 앞 <b>길을 건넙니다</b>. 차가 다니니 횡단보도를 이용해 주세요.</span></li>
+            <li><span><b>공영주차장</b> 바로 옆 건물이 <b>버드나무 예술창고</b>입니다.</span></li>
+          </ol>
+          <p class="note">위성 사진: Google Earth</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+<footer class="wrap"><a href="./">보고회 안내 페이지로</a></footer>
+
+<script>
+(function(){
+  var NS = 'http://www.w3.org/2000/svg';
+  function S(tag, a, p){ var e = document.createElementNS(NS, tag); for (var k in a) e.setAttribute(k, a[k]); if (p) p.appendChild(e); return e; }
+  function H(tag, cls, html){ var e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
+  var calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* 본관·별관 칸: 가로 위치는 학교 안내도 그대로 */
+  var MAIN = { w:1880, h:600, x0:200, floors:[
+    { f:3, y:60,  cells:[[826,931,'5-3','cls'],[931,1036,'5-2','cls'],[1036,1140,'5-1','cls'],[1140,1188,'WC','wc'],[1188,1236,'WC','wc'],[1236,1282,'계단','st'],[1282,1388,'4-5','cls'],[1388,1491,'4-4','cls'],[1491,1592,'4-3','cls'],[1592,1692,'4-2','cls'],[1692,1795,'4-1','cls'],[1795,1841,'계단','st']] },
+    { f:2, y:230, cells:[[314,418,'6-4','cls'],[418,466,'두드림','etc'],[466,571,'과학1실','etc'],[571,676,'과학2실','etc'],[676,781,'6-3','cls'],[781,826,'계단','st'],[826,931,'6-2','cls'],[931,1036,'6-1','cls'],[1036,1140,'3-4','cls'],[1140,1188,'WC','wc'],[1188,1236,'WC','wc'],[1236,1282,'계단','st'],[1282,1388,'3-3','cls'],[1388,1491,'3-2','cls'],[1491,1539,'전담실','etc'],[1539,1642,'3-1','cls'],[1642,1795,'컴퓨터실','etc'],[1795,1841,'계단','st']] },
+    { f:1, y:400, cells:[[314,418,'2-4','cls'],[418,466,'보건실','etc'],[466,571,'2-3','cls'],[571,676,'2-2','cls'],[676,781,'2-1','cls'],[781,826,'계단','st'],[826,931,'참사랑','etc'],[931,1140,'도서관','lib'],[1140,1188,'WC','wc'],[1188,1236,'WC','wc'],[1236,1282,'현관','door'],[1282,1332,'방송실','etc'],[1332,1382,'연구실','etc'],[1382,1434,'Wee','etc'],[1434,1535,'교무실','etc'],[1535,1588,'교감실','etc'],[1588,1690,'교장실','etc'],[1690,1795,'행정실','etc'],[1795,1841,'계단','st']] }
+  ]};
+  var ANNEX = { w:1330, h:420, x0:170, floors:[
+    { f:2, y:60,  cells:[[284,408,'영어전담2실','etc'],[408,533,'영어전담1실','etc'],[533,659,'1-1','cls'],[659,721,'WC','wc'],[721,784,'WC','wc'],[784,847,'창고','etc'],[847,907,'계단','st'],[907,1033,'1-2','cls'],[1033,1160,'1-3','cls'],[1160,1287,'1-4','cls']] },
+    { f:1, y:230, cells:[[280,405,'햇살반','etc'],[405,531,'윤슬반','etc'],[531,658,'유치원교무실','etc'],[658,720,'WC','wc'],[720,782,'WC','wc'],[782,910,'중앙현관','door'],[910,1036,'돌봄교실','etc'],[1036,1162,'방과후1실','etc'],[1162,1288,'방과후2실','etc']] }
+  ]};
+  var RH = 92, HALL = 38;
+  function F(plan, f){ return plan.floors.filter(function(x){ return x.f === f; })[0]; }
+  function hallY(plan, f){ return F(plan, f).y + RH + 6 + HALL/2; }
+  function roomBot(plan, f){ return F(plan, f).y + RH; }
+
+  var LIBX = 1036, MID = 1259, LEFT = 803;
+  function mainRoute(tx, f, stair){
+    var y1 = hallY(MAIN,1), b1 = roomBot(MAIN,1);
+    if (f === 1) return { pts:[[LIBX,b1],[LIBX,y1],[tx,y1],[tx,b1]], pins:[[LIBX,y1,1],[tx,y1,2]], tags:[] };
+    var sx = stair === 'left' ? LEFT : MID, yf = hallY(MAIN,f), bf = roomBot(MAIN,f);
+    return { pts:[[LIBX,b1],[LIBX,y1],[sx,y1],[sx,yf],[tx,yf],[tx,bf]], pins:[[LIBX,y1,1],[sx,y1,2],[tx,yf,3]], tags:[] };
+  }
+  /* 별관 가는 학급: 참사랑실 옆 계단 쪽 출입구(현관 왼쪽)로 나감 */
+  function mainToSide(){ var y1 = hallY(MAIN,1), b1 = roomBot(MAIN,1); return { pts:[[LIBX,b1],[LIBX,y1],[LEFT,y1],[LEFT,MAIN.h - 20]], pins:[[LIBX,y1,1]], tags:[[LEFT, MAIN.h - 52, '옆 출입구']] }; }
+  function annexRoute(tx){
+    var y1 = hallY(ANNEX,1), y2 = hallY(ANNEX,2), b2 = roomBot(ANNEX,2);
+    return { pts:[[846,ANNEX.h-8],[846,y1],[877,y1],[877,y2],[tx,y2],[tx,b2]], pins:[[846,y1,3],[tx,y2,4]], tags:[] };
+  }
+
+  var LESSONS = [
+    { grade:1, cls:1, subject:'통합(상상)', topic:'새로운 동물이 나타난다면', b:'annex', f:2, x:596 },
+    { grade:1, cls:2, subject:'수학', topic:'규칙을 만들어 볼까요', b:'annex', f:2, x:970 },
+    { grade:2, cls:2, co:true, inclusive:true, subject:'통합(물건)', topic:'나도 돕고 싶어요', b:'main', f:1, x:623 },
+    { grade:2, cls:3, inclusive:true, subject:'통합(물건)', topic:'발명왕이 되고 싶어요', b:'main', f:1, x:518 },
+    { grade:2, cls:4, subject:'통합(물건)', topic:'어떤 어려움이 있을까요', b:'main', f:1, x:366 },
+    { grade:3, cls:1, inclusive:true, subject:'사회', topic:'옛날 사람들이 이용했던 교통수단 알아보기', b:'main', f:2, x:1590 },
+    { grade:3, cls:4, subject:'수학', topic:'분모가 같은 분수의 크기를 비교해 볼까요', b:'main', f:2, x:1088 },
+    { grade:4, cls:5, subject:'국어', topic:'의견과 이유가 드러나게 제안하는 글 쓰기', b:'main', f:3, x:1335 },
+    { grade:5, cls:3, inclusive:true, subject:'사회', topic:'조선의 발전에 따른 사람들의 생활 모습 알아보기', b:'main', f:3, x:878 },
+    { grade:6, cls:1, subject:'국어', topic:'고유어의 가치를 알고 활용하기', b:'main', f:2, x:983, stair:'left' },
+    { grade:6, cls:3, subject:'수학', topic:'비의 성질 알아보기', b:'main', f:2, x:728, stair:'left' }
+  ];
+  var STEPS = {
+    '2-2':['도서관에서 나와 <b>참사랑실 쪽</b>으로 갑니다.','계단과 2-1 교실을 지나면 <b>2-2 교실</b>입니다.'],
+    '2-3':['도서관에서 나와 <b>참사랑실 쪽</b>으로 갑니다.','계단, 2-1, 2-2 교실을 지나면 <b>2-3 교실</b>입니다.'],
+    '2-4':['도서관에서 나와 <b>참사랑실 쪽</b>으로 갑니다.','복도 끝, 보건실 다음이 <b>2-4 교실</b>입니다.'],
+    '3-1':['도서관에서 나와 <b>현관 쪽</b>으로 갑니다.','현관 옆 계단으로 <b>2층</b>에 올라갑니다.','3-3, 3-2 교실과 전담실을 지나면 <b>3-1 교실</b>입니다.'],
+    '3-4':['도서관에서 나와 <b>현관 쪽</b>으로 갑니다.','현관 옆 계단으로 <b>2층</b>에 올라갑니다.','화장실을 지나면 바로 <b>3-4 교실</b>입니다.'],
+    '4-5':['도서관에서 나와 <b>현관 쪽</b>으로 갑니다.','현관 옆 계단으로 <b>3층</b>에 올라갑니다.','계단 바로 옆이 <b>4-5 교실</b>입니다.'],
+    '5-3':['도서관에서 나와 <b>현관 쪽</b>으로 갑니다.','현관 옆 계단으로 <b>3층</b>에 올라갑니다.','화장실, 5-1, 5-2 교실을 지나 복도 끝이 <b>5-3 교실</b>입니다.'],
+    '6-1':['도서관에서 나와 <b>참사랑실 쪽</b>으로 갑니다.','참사랑실 옆 계단으로 <b>2층</b>에 올라갑니다.','6-2 교실을 지나면 <b>6-1 교실</b>입니다.'],
+    '6-3':['도서관에서 나와 <b>참사랑실 쪽</b>으로 갑니다.','참사랑실 옆 계단으로 <b>2층</b>에 올라갑니다.','계단 바로 옆이 <b>6-3 교실</b>입니다.'],
+    '1-1':['도서관에서 나와 참사랑실 옆 <b>출입구</b>로 나갑니다.','<b>운동장</b> 가장자리를 따라 <b>별관</b>으로 갑니다.','별관 <b>중앙현관</b>으로 들어가 계단으로 <b>2층</b>에 올라갑니다.','창고와 화장실을 지나면 <b>1-1 교실</b>입니다.'],
+    '1-2':['도서관에서 나와 참사랑실 옆 <b>출입구</b>로 나갑니다.','<b>운동장</b> 가장자리를 따라 <b>별관</b>으로 갑니다.','별관 <b>중앙현관</b>으로 들어가 계단으로 <b>2층</b>에 올라갑니다.','계단 바로 옆이 <b>1-2 교실</b>입니다.']
+  };
+
+  function overlay(svg, r, sw){
+    sw = sw || 15;
+    var d = 'M ' + r.pts.map(function(p){ return p[0] + ' ' + p[1]; }).join(' L ');
+    var under = S('path', { d:d, class:'tape-under', 'stroke-width':sw + 9 }, svg);
+    var tape = S('path', { d:d, class:'tape', 'stroke-width':sw }, svg);
+    (r.tags || []).forEach(function(t){ var g = S('g', { class:'tagp' + (t[3] ? ' big' : '') }, svg), fs = t[4] || (t[3] ? 34 : 22), w = t[2].length * fs * 1.02 + 30, h = fs * 1.9;
+      S('rect', { x:t[0] - w/2, y:t[1] - h/2, width:w, height:h, rx:h/2 }, g); S('text', { x:t[0], y:t[1] + 1, 'font-size':fs }, g).textContent = t[2]; });
+    var pins = (r.pins || []).map(function(p){ var g = S('g', { class:'pin' }, svg); S('circle', { cx:p[0], cy:p[1], r:21 }, g); S('text', { x:p[0], y:p[1] + 1 }, g).textContent = p[2]; g._x = p[0]; g._y = p[1]; return g; });
+    var walker = S('circle', { r:sw, class:'walker', cx:r.pts[0][0], cy:r.pts[0][1] }, svg);
+    return { under:under, tape:tape, walker:walker, pins:pins };
+  }
+
+  function fitBox(b, ratio, W, Hh){
+    var w = b[2], h = b[3];
+    if (w / h < ratio) w = h * ratio; else h = w / ratio;
+    var x = b[0] + b[2]/2 - w/2, y = b[1] + b[3]/2 - h/2;
+    x = w <= W ? Math.max(0, Math.min(x, W - w)) : (W - w)/2;
+    y = h <= Hh ? Math.max(0, Math.min(y, Hh - h)) : (Hh - h)/2;
+    return [x, y, w, h];
+  }
+  function ease(t){ return t < .5 ? 2*t*t : 1 - Math.pow(-2*t + 2, 2)/2; }
+
+  /* 확대 → 선 긋기 → 점이 걸어감 */
+  function play(svg, area, r, parts, opt){
+    opt = opt || {};
+    var ratio = (svg.clientWidth / svg.clientHeight) || 4/3;
+    var from = opt.view || fitBox([0, 0, area.w, area.h], ratio, area.w, area.h), to = from;
+    if (!opt.view && !opt.noZoom){
+      var pad = opt.pad || 130, xs = r.pts.map(function(p){ return p[0]; }), ys = r.pts.map(function(p){ return p[1]; });
+      var bx = Math.max(0, Math.min.apply(null, xs) - pad), ex = Math.min(area.w, Math.max.apply(null, xs) + pad);
+      var by = Math.max(0, Math.min.apply(null, ys) - pad - 60), ey = Math.min(area.h, Math.max.apply(null, ys) + pad);
+      var t = fitBox([bx, by, ex - bx, ey - by], ratio, area.w, area.h);
+      if (t[2] < from[2] - 1) to = t;
+    }
+    var showMini = to !== from && area.x0 && to[0] > area.x0 + 40;
+    if (showMini) svg.querySelectorAll('.flr.mini').forEach(function(m){ m.setAttribute('transform', 'translate(' + (to[0] + 14) + ' 0)'); });
+    function minis(){ if (showMini) svg.querySelectorAll('.flr.mini').forEach(function(m){ m.style.opacity = 1; }); }
+    var len = parts.tape.getTotalLength();
+    [parts.under, parts.tape].forEach(function(p){ p.style.strokeDasharray = len; p.style.strokeDashoffset = len; });
+    parts.pins.forEach(function(p){ p.style.opacity = 0; });
+    parts.walker.style.opacity = 0;
+    function set(v){ svg.setAttribute('viewBox', v.map(function(n){ return n.toFixed(1); }).join(' ')); }
+    var token = {}; svg._tok = token;
+    if (calm){ set(to); minis(); [parts.under, parts.tape].forEach(function(p){ p.style.strokeDashoffset = 0; }); parts.pins.forEach(function(p){ p.style.opacity = 1; }); return; }
+    set(from);
+    var zoomT = to === from ? 0 : 900, drawT = Math.max(1300, len * (opt.speed || 1.15)), t0 = null;
+    function frame(ts){
+      if (svg._tok !== token) return;
+      if (t0 === null) t0 = ts;
+      var e = ts - t0 - 200;
+      if (e < 0){ requestAnimationFrame(frame); return; }
+      if (e < zoomT){ var k = ease(e / zoomT); set(from.map(function(v, i){ return v + (to[i] - v) * k; })); }
+      else {
+        set(to); minis();
+        var k2 = Math.min(1, (e - zoomT) / drawT), at = len * ease(k2);
+        parts.under.style.strokeDashoffset = len - at; parts.tape.style.strokeDashoffset = len - at;
+        var pt = parts.tape.getPointAtLength(at); parts.walker.setAttribute('cx', pt.x); parts.walker.setAttribute('cy', pt.y); parts.walker.style.opacity = 1;
+        parts.pins.forEach(function(p){ if (Math.hypot(p._x - pt.x, p._y - pt.y) < 26 || k2 === 1) p.style.opacity = 1; });
+        if (k2 === 1){ walk(); return; }
+      }
+      requestAnimationFrame(frame);
+    }
+    function walk(){
+      var s0 = null, dur = drawT * 1.6;
+      function w(ts){
+        if (svg._tok !== token) return;
+        if (s0 === null) s0 = ts;
+        var u = ((ts - s0) % (dur + 900)) / dur;
+        if (u <= 1){ var pt = parts.tape.getPointAtLength(len * ease(u)); parts.walker.setAttribute('cx', pt.x); parts.walker.setAttribute('cy', pt.y); parts.walker.style.opacity = 1; }
+        else parts.walker.style.opacity = 0;
+        requestAnimationFrame(w);
+      }
+      requestAnimationFrame(w);
+    }
+    requestAnimationFrame(frame);
+  }
+
+  /* ── 학교 안내도 사진 위에 길 그리기 ── */
+  var IMG = {
+    main:  { src:'floor-main.jpg',  w:1943, h:707, title:'본관 층별 안내' },
+    annex: { src:'floor-annex.jpg', w:1382, h:708, title:'별관 층별 안내' },
+    out:   { src:'map-route.jpg',   w:1040, h:420, title:'운동장을 지나 별관으로' }
+  };
+  var P_LIB = 1036, P_Y = { 1:646, 2:487, 3:333 }, P_TOP = { 1:635, 2:475, 3:322 }, P_MID = 1259, P_LEFT = 803;
+  var BOX = {
+    '1-1':[533,257,659,355], '1-2':[910,257,1035,355],
+    '2-2':[571,537,676,635], '2-3':[466,537,571,635], '2-4':[314,537,418,635],
+    '3-1':[1539,377,1642,475], '3-4':[1036,377,1140,475],
+    '4-5':[1283,224,1388,322], '5-3':[826,224,931,322],
+    '6-1':[931,377,1036,475], '6-3':[676,377,781,475]
+  };
+  function pMain(tx, f, stair){
+    if (f === 1) return 'M '+P_LIB+' 635 V '+P_Y[1]+' H '+tx+' V 635';
+    var sx = stair === 'left' ? P_LEFT : P_MID;
+    return 'M '+P_LIB+' 635 V '+P_Y[1]+' H '+sx+' V '+P_Y[f]+' H '+tx+' V '+P_TOP[f];
+  }
+  function picView(key, d, box, lab, above, endLab){
+    var im = IMG[key], wrap = H('div', 'view');
+    wrap.appendChild(H('h3', '', im.title));
+    var sc = H('div', 'scroll'), pl = H('div', 'pic' + (key === 'out' ? ' wide' : ''));
+    var img = new Image(); img.src = im.src; img.alt = im.title; img.width = im.w; img.height = im.h; pl.appendChild(img);
+    var svg = S('svg', { viewBox:'0 0 '+im.w+' '+im.h, 'aria-hidden':'true' }, pl);
+    var sw = key === 'out' ? 16 : 12;
+    S('path', { d:d, class:'p-under', 'stroke-width':sw+6 }, svg);
+    var line = S('path', { d:d, class:'p-line p-draw', 'stroke-width':sw }, svg);
+    var ants = S('path', { d:d, class:'p-ants', 'stroke-width':sw-4 }, svg);
+    var m = d.match(/-?\d+(\.\d+)?/g).map(Number), sx = m[0], sy = m[1];
+    var st = S('g', { class:'start' }, svg); S('circle', { cx:sx, cy:sy, r:sw+4, 'stroke-width':4 }, st);
+    function pill(x, y, t){ var g = S('g', { class:'lbl' }, svg), w = t.length * 28 + 24; S('rect', { x:x - w/2, y:y, width:w, height:44, rx:22 }, g); S('text', { x:x, y:y + 31, 'text-anchor':'middle', 'font-size':26 }, g).textContent = t; }
+    if (lab) pill(sx, above ? sy - 74 : sy + 26, lab);
+    if (endLab) pill(m[m.length-2], m[m.length-1] - 74, endLab);
+    if (box) S('rect', { x:box[0]+3, y:box[1]+3, width:box[2]-box[0]-6, height:box[3]-box[1]-6, rx:6, class:'box', 'stroke-width':8 }, svg);
+    sc.appendChild(pl); wrap.appendChild(sc);
+    if (key !== 'out') wrap.appendChild(H('p', 'hint', '안내도를 옆으로 밀어 볼 수 있습니다.'));
+    wrap._go = function(){
+      var len = line.getTotalLength();
+      line.classList.remove('p-draw'); ants.classList.remove('on'); void line.getBBox();
+      line.style.setProperty('--len', len); line.style.strokeDasharray = len; line.style.strokeDashoffset = len;
+      line.classList.add('p-draw'); setTimeout(function(){ ants.classList.add('on'); }, 1600);
+      if (key !== 'out'){ var fx = box ? ((box[0] + box[2]) / 2 + sx) / 2 / im.w : sx / im.w; sc.scrollLeft = Math.max(0, fx * sc.scrollWidth - sc.clientWidth / 2); }
+    };
+    return wrap;
+  }
+  function wayFor(l){
+    var k = l.grade + '-' + l.cls, wrap = H('div', 'way'), boards = H('div', 'boards'), views = [];
+    if (l.b === 'main'){
+      views.push(picView('main', pMain(PX[k], l.f, l.stair), BOX[k], '도서관'));
+    } else {
+      views.push(picView('main', 'M '+P_LIB+' 635 V '+P_Y[1]+' H '+P_LEFT+' V 700', null, '도서관', false, null));
+      views.push(picView('out', 'M 575 152 V 188 H 420 L 372 225', null, '옆 출입구', true));
+      views.push(picView('annex', 'M 846 600 V 500 H 877 V 366 H '+PX[k]+' V 355', BOX[k], '중앙현관'));
+    }
+    views.forEach(function(v){ boards.appendChild(v); });
+    wrap.appendChild(boards);
+    var ol = H('ol', 'steps'); STEPS[k].forEach(function(t){ ol.appendChild(H('li', '', '<span>' + t + '</span>')); });
+    wrap.appendChild(ol);
+    wrap._start = function(){ views.forEach(function(v){ v._go(); }); };
+    return wrap;
+  }
+  var PX = { '1-1':596, '1-2':972, '2-2':623, '2-3':518, '2-4':366, '3-1':1590, '3-4':1088, '4-5':1335, '5-3':878, '6-1':983, '6-3':728 };
+
+  /* ── 목록 ── */
+  var list = document.getElementById('list'), chips = document.getElementById('chips'), pick = 0, openKey = null;
+  function draw(){
+    list.textContent = '';
+    var rows = LESSONS.filter(function(l){ return !pick || l.grade === pick; });
+    rows.forEach(function(l){
+      var k = l.grade + '-' + l.cls, li = H('li'), what = H('div', 'what');
+      var cl = H('span', 'cls', l.grade + '학년 ' + l.cls + '반' + (l.inclusive ? '<span class="star" title="통합학급">★</span>' : ''));
+      what.appendChild(H('b', '', l.topic + (l.co ? ' <span class="badge-co">협력수업</span>' : '')));
+      what.appendChild(H('span', '', (l.b === 'annex' ? '별관 ' : '본관 ') + l.f + '층 ' + k + ' 교실 · ' + l.subject));
+      var bt = H('button', 'go', '찾아가는 길'); bt.type = 'button'; bt.setAttribute('aria-expanded', 'false');
+      li.appendChild(cl); li.appendChild(what); li.appendChild(bt);
+      bt.addEventListener('click', function(){ toggle(k, li, bt, l); });
+      list.appendChild(li);
+      if (openKey === k) toggle(k, li, bt, l, true);
+    });
+  }
+  function toggle(k, li, bt, l, force){
+    var was = li.classList.contains('open');
+    list.querySelectorAll('li.open').forEach(function(o){ o.classList.remove('open'); var w = o.querySelector('.way'); if (w) w.remove(); var b = o.querySelector('.go'); b.setAttribute('aria-expanded', 'false'); b.textContent = '찾아가는 길'; });
+    if (was && !force){ openKey = null; try { history.replaceState(null, '', location.pathname); } catch(e){} return; }
+    openKey = k; li.classList.add('open'); bt.setAttribute('aria-expanded', 'true'); bt.textContent = '길 안내 닫기';
+    var way = wayFor(l); li.appendChild(way);
+    requestAnimationFrame(function(){ way._start(); li.scrollIntoView({ behavior: calm ? 'auto' : 'smooth', block:'start' }); });
+    try { history.replaceState(null, '', '#' + k); } catch(e){}
+  }
+  [0,1,2,3,4,5,6].forEach(function(g){
+    var c = H('button', 'chip', g ? g + '학년' : '전체'); c.type = 'button'; c.setAttribute('aria-pressed', g === 0);
+    c.addEventListener('click', function(){ pick = g; chips.querySelectorAll('.chip').forEach(function(o){ o.setAttribute('aria-pressed', o === c); }); draw(); });
+    chips.appendChild(c);
+  });
+  var h0 = (location.hash || '').slice(1);
+  if (/^\d-\d$/.test(h0)) openKey = h0;
+  draw();
+
+  /* ── 버드나무 예술창고 가는 길 (위성 사진) ── */
+  var sat = document.getElementById('sat');
+  var SVG = S('svg', { role:'img', 'aria-label':'후문에서 버드나무 예술창고까지 가는 길' }, sat);
+  var rp = H('button', 'replay', '다시 보기'); rp.type = 'button'; sat.appendChild(rp);
+  var SAT = { w:1580, h:602 };
+  var AFTER = { pts:[[755,32],[760,78],[610,82],[597,96],[595,110],[597,282],[610,372],[625,417],[588,494]],
+                pins:[[588,494,'★']], tags:[[755,34,'본관'],[548,398,'후문'],[668,556,'버드나무 예술창고',1,30]] };
+  function satView(){ return innerWidth < 860 ? [440, 0, 470, 602] : [300, 0, 820, 602]; }
+  function playAfter(){
+    SVG.innerHTML = '';
+    var v = satView(); SVG.setAttribute('viewBox', v.join(' ')); SVG.style.aspectRatio = v[2] + '/' + v[3];
+    S('image', { href:'route.jpg', x:0, y:0, width:SAT.w, height:SAT.h }, SVG);
+    S('rect', { x:0, y:0, width:SAT.w, height:SAT.h, fill:'rgba(17,20,24,.18)' }, SVG);
+    var parts = overlay(SVG, AFTER, 10);
+    play(SVG, SAT, AFTER, parts, { view:v, speed:3.2 });
+  }
+  rp.addEventListener('click', playAfter);
+  var seen = false;
+  if ('IntersectionObserver' in window){
+    new IntersectionObserver(function(es, ob){ es.forEach(function(e){ if (e.isIntersecting && !seen){ seen = true; playAfter(); ob.disconnect(); } }); }, { threshold:.35 }).observe(sat);
+    var v0 = satView(); SVG.setAttribute('viewBox', v0.join(' ')); SVG.style.aspectRatio = v0[2] + '/' + v0[3];
+    S('image', { href:'route.jpg', x:0, y:0, width:SAT.w, height:SAT.h }, SVG);
+  } else playAfter();
+  var lastW = innerWidth;
+  addEventListener('resize', function(){ if ((innerWidth < 860) !== (lastW < 860)){ lastW = innerWidth; if (seen) playAfter(); } });
+})();
+</script>
+</body>
+</html>
