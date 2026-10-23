@@ -121,8 +121,9 @@ footer a{color:inherit;font-weight:700}
 .view-head h3{margin:0}
 .mini-t{min-height:36px;padding:0 .9rem;border-radius:999px;border:1px solid var(--line);background:var(--card);font:700 .875rem var(--font);color:var(--ink);cursor:pointer}
 .mini-t:active{background:var(--sun)}
-.frame{border-radius:14px;border:1px solid var(--line);background:#fff;overflow:hidden}
-.frame svg{display:block;width:100%;height:auto}
+.frame{border-radius:14px;border:1px solid var(--line);background:#fff;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+.frame svg{display:block;width:100%;max-width:none;height:auto}
+.swipe{margin:.35rem 0 0;font-size:.8125rem;color:var(--mute)}
 .ftag rect{fill:var(--ink);stroke:#fff;stroke-width:3}
 .ftag text{fill:#fff;font-family:var(--font);font-weight:900;font-size:20px;text-anchor:middle;dominant-baseline:central}
 .view h3{margin:0 0 6px;font-size:.9375rem;font-weight:700;color:var(--mute)}
@@ -435,9 +436,20 @@ footer a{color:inherit;font-weight:700}
       });
     }
     var zoomed = false;
+    var swipe = H('p', 'swipe', '안내도를 옆으로 밀면 나머지 교실도 볼 수 있습니다.'); swipe.hidden = true; wrap.appendChild(swipe);
     function setView(z){
-      zoomed = z; var v = z ? crop : full;
-      svg.setAttribute('viewBox', v.join(' ')); svg.style.aspectRatio = v[2] + ' / ' + v[3];
+      zoomed = z;
+      if (z && key !== 'out'){
+        /* 가까이 보기: 길 부분이 화면 폭에 차도록 키우고, 나머지는 옆으로 밀어서 봄 */
+        var v = [0, crop[1], im.w, crop[3]], k = im.w / crop[2];
+        svg.setAttribute('viewBox', v.join(' ')); svg.style.aspectRatio = v[2] + ' / ' + v[3]; svg.style.width = (k * 100) + '%';
+        requestAnimationFrame(function(){ frame.scrollLeft = crop[0] / im.w * svg.clientWidth; });
+        swipe.hidden = false;
+      } else {
+        var v2 = z ? crop : full;
+        svg.setAttribute('viewBox', v2.join(' ')); svg.style.aspectRatio = v2[2] + ' / ' + v2[3]; svg.style.width = '100%';
+        swipe.hidden = true;
+      }
       floorTags(z); tg.textContent = z ? '전체 보기' : '가까이 보기';
     }
     tg.addEventListener('click', function(){ setView(!zoomed); });
